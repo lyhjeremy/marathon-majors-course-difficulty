@@ -1,0 +1,9 @@
+course,city,country,distance_km,total_gain_m,total_loss_m,net_drop_m,max_grade_pct,turn_count,course_type,sea_level_avg_m
+boston,Boston,USA,42.195,229,365,-136,4.5,12,point_to_point,75
+nyc,New York,USA,42.195,247,247,0,3.0,8,loop_partial,15
+chicago,Chicago,USA,42.195,42,42,0,1.0,15,loop,180
+berlin,Berlin,Germany,42.195,38,38,0,0.8,18,loop,34
+london,London,UK,42.195,73,79,-6,2.5,20,loop_with_outback,15
+tokyo,Tokyo,Japan,42.195,82,98,-16,2.0,14,loop,40
+sydney,Sydney,Australia,42.195,210,225,-15,3.5,16,loop_with_outback,20
+cape_town,Cape Town,South Africa,42.195,180,180,0,3.2,18,loop_partial,30
