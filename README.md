@@ -1,5 +1,7 @@
 # Are the World Marathon Majors Equally Fast?
 
+> 📖 **In depth:** https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/
+
 A three-framework analysis of course difficulty across the six World Marathon Majors.
 
 📊 **[Read the full writeup →](writeup.md)** &nbsp;·&nbsp; 📄 [PDF report](reports/Marathon_Majors_Course_Difficulty_Report.pdf) &nbsp;·&nbsp; 📝 [Word doc](reports/Marathon_Majors_Course_Difficulty_Report.docx) &nbsp;·&nbsp; 📓 [Notebook](notebooks/majors_course_difficulty_analysis.ipynb)
