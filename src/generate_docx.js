@@ -159,13 +159,13 @@ children.push(head('3.1 Framework 1: Elevation- and grade-adjusted (Minetti)', 2
 children.push(p('We integrate the Minetti et al. (2002) energetic-cost-of-running curve over each course’s gradient distribution, approximated as 40% uphill / 40% downhill / 20% flat. The average energy cost relative to flat gives an elevation factor; the predicted penalty in seconds is (factor − 1) × 7800 at a 2:10 reference. Two micro-penalties account for sharp grades (Newton hills, NYC bridges) and turn density that the pure energy-cost model under-weights. The Minetti framework predicts Boston should be fast (net descent); we report this honestly and let Framework 2 correct it empirically.'));
 
 children.push(head('3.2 Framework 2: Within-runner paired comparison', 2));
-children.push(p('For every athlete who completed two different Majors within 18 months, we have a paired observation. The same-athlete delta controls for runner ability exactly and for fitness drift approximately. We fit per-course offsets via ordinary least squares on 42,567 paired observations with Berlin pinned at zero, and bootstrap (n = 2,000) for 95% CIs. Each finish time is weather-normalized before the delta is computed — otherwise a hot Berlin edition would penalize Berlin in the paired comparison. This is the cleanest framework and the one we weight most heavily in the composite.'));
+children.push(p('For every athlete who completed two different Majors within 18 months, we have a paired observation. The same-athlete delta controls for runner ability exactly and for fitness drift approximately. We fit per-course offsets via ordinary least squares on 42,567 paired observations with Berlin pinned at zero, and bootstrap (n = 2,000) for 95% CIs. Each finish time is weather-normalized before the delta is computed. Otherwise a hot Berlin edition would penalize Berlin in the paired comparison. This is the cleanest framework and the one we weight most heavily in the composite.'));
 
 children.push(head('3.3 Framework 3: Weather-normalized top-10 average', 2));
 children.push(p('For each (course, year, gender) we compute the top-10 average finish time, divide by a Maughan / El Helou weather penalty multiplier (0.5% per °C above 10 °C; 0.05% per humidity point above 60%; 0.05% per kph wind above 15 kph), then average across years and re-anchor Berlin = 0.'));
 
 children.push(head('3.4 Composite Course Difficulty Index (CDI)', 2));
-children.push(p('Each framework’s offset in seconds is converted to a multiplicative factor on a 7800-second flat reference (1 + offset / 7800). The CDI is a weighted mean: 0.15 × F1 + 0.50 × F2 + 0.35 × F3. Framework 2 is weighted highest because it is the cleanest. Framework 1 is down-weighted because Minetti credits net-descent courses too generously — it cannot see the late-race fatigue tax that the Newton hills impose.'));
+children.push(p('Each framework’s offset in seconds is converted to a multiplicative factor on a 7800-second flat reference (1 + offset / 7800). The CDI is a weighted mean: 0.15 × F1 + 0.50 × F2 + 0.35 × F3. Framework 2 is weighted highest because it is the cleanest. Framework 1 is down-weighted because Minetti credits net-descent courses too generously. It cannot see the late-race fatigue tax that the Newton hills impose.'));
 
 // 4. Results
 children.push(new Paragraph({ children: [new PageBreak()] }));
@@ -178,7 +178,7 @@ imageBlock('fig1_raw_times_by_course.png', 600, 250,
 ).forEach(b => children.push(b));
 
 children.push(head('4.2 Framework 2: Within-runner paired comparison', 2));
-children.push(p('The headline empirical finding: for the same runner in the same 18-month window, Boston costs 101 seconds and NYC costs 78 seconds relative to Berlin. Boston is the slowest Major; NYC is the second slowest; Berlin, Chicago, London, and Tokyo cluster within 35 s of each other. A 1-sample t-test on the 2,808 direct Berlin–Chicago pairs gives t = −19.05, p < 0.001 — the 11-second Chicago–Berlin difference is statistically detectable at this sample size but practically below race-day weather variance.'));
+children.push(p('The headline empirical finding: for the same runner in the same 18-month window, Boston costs 101 seconds and NYC costs 78 seconds relative to Berlin. Boston is the slowest Major; NYC is the second slowest; Berlin, Chicago, London, and Tokyo cluster within 35 s of each other. A 1-sample t-test on the 2,808 direct Berlin–Chicago pairs gives t = −19.05, p < 0.001. The 11-second Chicago–Berlin difference is statistically detectable at this sample size but practically below race-day weather variance.'));
 imageBlock('fig3_within_runner_gaps.png', 500, 410,
   'Figure 2. Mean within-runner time delta for each course pair, 95% bootstrap CI. n = 42,567 paired observations across ~3,100 athletes.'
 ).forEach(b => children.push(b));
@@ -202,7 +202,7 @@ children.push(pRich([
 ]));
 children.push(pRich([
   { text: 'Finding 3: Weather variance dominates within-course year-over-year change. ', bold: true },
-  'Berlin 2022 (18 °C) and London 2018 (23.5 °C) each saw weather-adjusted slowdowns of 60–120 s versus those courses’ cooler editions — larger than the average course-to-course difference between Berlin and Tokyo (17 s).',
+  'Berlin 2022 (18 °C) and London 2018 (23.5 °C) each saw weather-adjusted slowdowns of 60–120 s versus those courses’ cooler editions: larger than the average course-to-course difference between Berlin and Tokyo (17 s).',
 ]));
 imageBlock('fig5_framework_comparison.png', 580, 320,
   'Figure 4. Cross-framework heatmap (Berlin = 1.000). Boston’s F1 cell is the anomaly: Minetti predicts Boston is faster than Berlin. Every other course-framework cell agrees.'
@@ -212,7 +212,7 @@ imageBlock('fig5_framework_comparison.png', 580, 320,
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(head('6. The Headline: Course Difficulty Index'));
 imageBlock('fig6_course_difficulty_index.png', 600, 325,
-  'Figure 5. Course Difficulty Index — composite ranking (Berlin = 1.000).'
+  'Figure 5. Course Difficulty Index, composite ranking (Berlin = 1.000).'
 ).forEach(b => children.push(b));
 
 // Results table
@@ -282,7 +282,7 @@ children.push(p('Shoe technology (Vaporfly 2016, next-gen plates by 2020) shifte
 
 // 8. Sensitivity
 children.push(head('8. Sensitivity Analysis'));
-children.push(p('We stress-tested the CDI ranking against three perturbations: dropping Framework 1 entirely, restricting Framework 2 to sub-2:10 men, and substituting a Strava-GAP-style elevation model. The ordinal ranking — Boston > NYC > London > Tokyo > Chicago > Berlin — is unchanged across all four assumption sets. The Strava-GAP model moves NYC’s CDI to 1.0166 (closer to Boston’s 1.0133), but does not flip the ranking. Restricting Framework 2 to sub-2:10 men gives essentially the same per-course offsets.'));
+children.push(p('We stress-tested the CDI ranking against three perturbations: dropping Framework 1 entirely, restricting Framework 2 to sub-2:10 men, and substituting a Strava-GAP-style elevation model. The ordinal ranking. Boston > NYC > London > Tokyo > Chicago > Berlin. Is unchanged across all four assumption sets. The Strava-GAP model moves NYC’s CDI to 1.0166 (closer to Boston’s 1.0133), but does not flip the ranking. Restricting Framework 2 to sub-2:10 men gives essentially the same per-course offsets.'));
 imageBlock('fig7_sensitivity.png', 600, 280,
   'Figure 6. CDI under four assumption sets. The ranking is invariant; only the gap magnitudes shift.'
 ).forEach(b => children.push(b));
@@ -309,7 +309,7 @@ imageBlock('fig8_alternative_ranking.png', 600, 310,
 // 10. Conclusion
 children.push(head('10. Conclusion'));
 children.push(p('The six World Marathon Majors are not equally fast. The within-runner paired comparison finds Boston 101 s and NYC 78 s slower than Berlin for an equivalent elite runner; Berlin, Chicago, London, and Tokyo cluster within 35 s of each other. The weather-normalized top-10 framework agrees to within 2 s on every course. The Minetti energy-cost model disagrees on Boston specifically; this is a known limitation of energy-cost models, and the empirical paired data overrides it.'));
-children.push(p('Readers should weight Framework 2 most heavily and treat Framework 1 as a sanity check. When two Majors land within 30 seconds of each other on the composite — Chicago vs Berlin, Tokyo vs Chicago — the courses are practically interchangeable for ranking athletes’ personal bests.'));
+children.push(p('Readers should weight Framework 2 most heavily and treat Framework 1 as a sanity check. When two Majors land within 30 seconds of each other on the composite, Chicago vs Berlin, Tokyo vs Chicago, the courses are practically interchangeable for ranking athletes’ personal bests.'));
 
 children.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { before: 240, after: 0 },
