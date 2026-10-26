@@ -3,12 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=web/index.html">
-<link rel="canonical" href="web/index.html">
-<title>Are the World Marathon Majors Equally Fast?</title>
+<title>Marathon Majors course difficulty: three methods tested on a simulated field</title>
+<meta name="description" content="Three ways to rank the six World Marathon Majors by difficulty, tested on a simulated elite field with known course penalties. The within-runner paired method recovers each penalty to within 8 seconds.">
+<meta property="og:title" content="Marathon Majors course difficulty">
+<meta property="og:description" content="A simulated field with planted course penalties, and three methods that try to find them again.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#ECEBE6">
+<link rel="stylesheet" href="assets/family.css">
+<style>
+  * { box-sizing: border-box; border-radius: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body);
+         font-size: 17px; line-height: 1.6; border-top: 6px solid var(--signal-2); }
+  a { color: var(--signal); }
+  a:hover { color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+  .bar-link { display: block; background: var(--ink); color: var(--paper); text-align: center;
+              padding: 11px 18px; font: 600 14.5px/1.45 var(--font-body); text-decoration: none; }
+  .bar-link:hover { color: var(--paper); background: var(--signal-2); }
+  .wrap { width: min(100% - 2.4rem, 58rem); margin: 0 auto; }
+  .bib { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+         padding: 22px 0 12px; border-bottom: 2px solid var(--ink); font-family: var(--font-mono);
+         font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .bib b { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: .02em; color: var(--ink); }
+  h1 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; line-height: .98;
+       font-size: clamp(38px, 6.4vw, 70px); letter-spacing: -.005em; margin: 34px 0 16px; max-width: 18ch; }
+  .lede { font-size: 1.08em; color: var(--ink-2); max-width: 62ch; margin: 0 0 30px; }
+  .lede strong { color: var(--ink); }
+
+  /* Signature: the six courses ranked, bar = within-runner estimate, tick = planted penalty */
+  .board { border: 1px solid var(--edge); background: var(--panel); padding: 18px 20px 14px; }
+  .board-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+                font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+                color: var(--ink-2); padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .rank { list-style: none; margin: 0; padding: 0; }
+  .rank li { display: grid; grid-template-columns: 2.2rem 6.4rem minmax(0, 1fr) 4.6rem; align-items: center;
+             gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+  .rank li:last-child { border-bottom: 0; }
+  .pos { font-family: var(--font-display); font-weight: 700; font-size: 26px; line-height: 1; color: var(--ink-2); }
+  .course { font-family: var(--font-display); font-weight: 600; font-size: 23px; text-transform: uppercase;
+            letter-spacing: .02em; line-height: 1; }
+  .track { position: relative; height: 18px; border-left: 2px solid var(--ink); }
+  .fill { position: absolute; left: 0; top: 2px; bottom: 2px; background: var(--signal-2); }
+  .tick { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 3px solid var(--signal); }
+  .val { font-family: var(--font-mono); font-size: 15px; text-align: right; font-variant-numeric: tabular-nums; }
+  .val small { display: block; font-size: 11.5px; color: var(--ink-2); }
+  .key { display: flex; gap: 22px; flex-wrap: wrap; margin: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
+  .key span::before { content: ""; display: inline-block; width: 16px; height: 10px; margin-right: 7px;
+                      vertical-align: -1px; background: var(--signal-2); }
+  .key span.t::before { width: 0; height: 14px; border-left: 3px solid var(--signal); background: none; vertical-align: -3px; }
+  .cap { font-size: 14px; color: var(--ink-2); margin: 10px 0 0; max-width: 70ch; }
+
+  h2 { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .01em;
+       font-size: clamp(26px, 3.4vw, 34px); line-height: 1; margin: 52px 0 14px; }
+  .methods { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+  .methods li { padding: 14px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 4px 20px; }
+  @media (min-width: 720px) { .methods li { grid-template-columns: 15rem 1fr; } }
+  .methods b { font-family: var(--font-display); font-weight: 600; font-size: 21px; text-transform: uppercase; letter-spacing: .02em; }
+  .methods p { margin: 0; color: var(--ink-2); }
+  .plain { max-width: 64ch; color: var(--ink-2); }
+  .links { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 18px 0 0; padding: 0; list-style: none;
+           font-family: var(--font-display); font-weight: 600; font-size: 21px; text-transform: uppercase; letter-spacing: .02em; }
+  footer { margin: 60px 0 0; padding: 22px 0 50px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); }
+  footer a { color: var(--ink-2); }
+  @media (max-width: 560px) {
+    .rank li { grid-template-columns: 1.6rem 4.9rem minmax(0, 1fr) 3.9rem; gap: 8px; }
+    .course { font-size: 19px; } .pos { font-size: 21px; } .val { font-size: 13.5px; }
+    .board { padding: 14px 12px 12px; }
+  }
+</style>
 </head>
-<body style="font-family:"Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;background:#EDEDE7;color:#1C1E1B;text-align:center;padding:60px">
-<p>Loading the report… If it doesn't open automatically,
-<a href="web/index.html">click here</a>.</p>
+<body>
+<a class="bar-link" href="overview/" data-overview-link>Read the full writeup&nbsp;&rarr;</a>
+
+<div class="wrap">
+  <header class="bib"><b>Majors course difficulty</b><span>Jeremy Lee &middot; 2026</span></header>
+
+  <h1>Same runner, two courses: the paired method finds each course's penalty within 8 seconds</h1>
+  <p class="lede">I built a simulated elite field for the six World Marathon Majors, 2015 to 2024, with a known time
+    penalty planted on each course. Then I asked three ranking methods to find those penalties again.
+    The <strong>within-runner paired comparison</strong> read Boston as 101 seconds slower than Berlin against
+    a planted 105, and missed no course by more than 7.3 seconds.</p>
+
+  <section class="board" aria-labelledby="board-title">
+    <div class="board-head"><span id="board-title">Seconds slower than Berlin</span><span>bar: paired estimate &middot; tick: planted</span></div>
+    <ol class="rank">
+      <li><span class="pos">1</span><span class="course">Boston</span>
+        <span class="track" aria-hidden="true"><span class="fill" style="width:91.8%"></span><span class="tick" style="left:95.5%"></span></span>
+        <span class="val">+101.0<small>of 105</small></span></li>
+      <li><span class="pos">2</span><span class="course">New York</span>
+        <span class="track" aria-hidden="true"><span class="fill" style="width:70.6%"></span><span class="tick" style="left:77.3%"></span></span>
+        <span class="val">+77.7<small>of 85</small></span></li>
+      <li><span class="pos">3</span><span class="course">London</span>
+        <span class="track" aria-hidden="true"><span class="fill" style="width:27.9%"></span><span class="tick" style="left:31.8%"></span></span>
+        <span class="val">+30.7<small>of 35</small></span></li>
+      <li><span class="pos">4</span><span class="course">Tokyo</span>
+        <span class="track" aria-hidden="true"><span class="fill" style="width:19.1%"></span><span class="tick" style="left:25.5%"></span></span>
+        <span class="val">+21.0<small>of 28</small></span></li>
+      <li><span class="pos">5</span><span class="course">Chicago</span>
+        <span class="track" aria-hidden="true"><span class="fill" style="width:10.4%"></span><span class="tick" style="left:10.9%"></span></span>
+        <span class="val">+11.4<small>of 12</small></span></li>
+      <li><span class="pos">6</span><span class="course">Berlin</span>
+        <span class="track" aria-hidden="true"></span>
+        <span class="val">0<small>anchor</small></span></li>
+    </ol>
+    <div class="key"><span>Within-runner paired estimate, weather-normalized</span><span class="t">Penalty planted in the simulation</span></div>
+  </section>
+  <p class="cap">From <code>outputs/analysis_results.csv</code> (estimates) and <code>src/build_data.py</code> (planted penalties).
+    Bootstrap 95% intervals are about &plusmn;2 s on every course. The estimate falls short of the planted value on all five courses.</p>
+
+  <h2>Three methods</h2>
+  <ul class="methods">
+    <li><b>Grade-adjusted</b><p>Minetti et al. (2002) energy cost of running, integrated over each course's elevation
+      profile. It uses no race results. It puts Boston 89 s <em>faster</em> than Berlin, because of the 136 m net descent.</p></li>
+    <li><b>Within-runner paired</b><p>42,567 same-athlete pairs of Majors run within 18 months, divided by a weather
+      multiplier, then least squares for one offset per course with Berlin fixed at zero; 2,000 bootstrap resamples.</p></li>
+    <li><b>Weather-normalized top 10</b><p>Each edition's top-10 average divided by a Maughan / El Helou style heat,
+      humidity and wind multiplier, averaged over years. Boston +100.1 s, New York +80.3 s; worst miss 11.1 s (Tokyo).</p></li>
+  </ul>
+  <p class="plain">A weighted composite (0.15, 0.50, 0.35) gives a Course Difficulty Index with Berlin at 1.000.
+    Boston comes out at 1.0092 and New York at 1.0089: the elevation model's negative Boston number pulls the two almost level.</p>
+
+  <h2>What this doesn't show</h2>
+  <p class="plain">The race results and athletes are simulated, so none of these numbers is a measurement of the real courses.
+    The test is also easier than real data would be: the weather correction uses the same curve that generated the times.
+    Whether Boston really is 105 s slower than Berlin, or faster as the elevation model says, this data can't tell.</p>
+
+  <ul class="links">
+    <li><a href="overview/">Write-up</a></li>
+    <li><a href="web/index.html">HTML report</a></li>
+    <li><a href="https://github.com/lyhjeremy/marathon-majors-course-difficulty/blob/main/notebooks/majors_course_difficulty_analysis.ipynb">Notebook</a></li>
+    <li><a href="https://github.com/lyhjeremy/marathon-majors-course-difficulty">Code</a></li>
+  </ul>
+
+  <footer>Python (pandas, NumPy, SciPy, matplotlib, seaborn). MIT &copy; 2026 Jeremy Lee.
+    <a href="https://github.com/lyhjeremy/marathon-majors-course-difficulty">Source on GitHub</a>.</footer>
+</div>
 </body>
 </html>

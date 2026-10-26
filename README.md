@@ -1,81 +1,72 @@
-# Are the World Marathon Majors Equally Fast?
+# Marathon Majors course difficulty
+
+Three methods for ranking the six World Marathon Majors by course difficulty, tested on a simulated elite field where each course's true penalty is known.
+
+[Live site](https://lyhjeremy.github.io/marathon-majors-course-difficulty/) · [Write-up](https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/) · [Full report (Markdown)](writeup.md) · [Notebook](notebooks/majors_course_difficulty_analysis.ipynb)
 
 Design and copy follow [these standards](https://github.com/lyhjeremy/lyhjeremy/blob/main/DESIGN_STANDARDS.md).
 
-> **In depth:** https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/
+> **Correction, October 2026.** Earlier versions of this README described the race results as compiled from World Athletics, ARRS and MarathonGuide, and reported Boston's +101 s as a property of the real course. The results are simulated by `src/build_data.py`. The PDF and Word files in `reports/` still carry the old framing.
 
-A three-framework analysis of course difficulty across the six World Marathon Majors.
+## Results
 
-**[Read the full writeup →](writeup.md)** &nbsp;·&nbsp; [PDF report](reports/Marathon_Majors_Course_Difficulty_Report.pdf) &nbsp;·&nbsp; [Word doc](reports/Marathon_Majors_Course_Difficulty_Report.docx) &nbsp;·&nbsp; [Notebook](notebooks/majors_course_difficulty_analysis.ipynb)
+Seconds slower than Berlin for the same runner. "Planted" is the penalty written into the simulation.
 
----
+| Course | Planted | Within-runner paired (95% CI) | Weather-normalized top 10 | Grade-adjusted (Minetti) |
+|:--|--:|--:|--:|--:|
+| Boston | 105 | +101.0 (98.8 to 103.1) | +100.1 | −89.4 |
+| New York | 85 | +77.7 (75.5 to 79.7) | +80.3 | +15.4 |
+| London | 35 | +30.7 (28.6 to 32.8) | +29.7 | +3.6 |
+| Tokyo | 28 | +21.0 (18.7 to 23.2) | +16.9 | −16.7 |
+| Chicago | 12 | +11.4 (9.2 to 13.5) | +11.4 | −3.5 |
 
-## What this is
+- The paired method recovers every planted penalty to within 7.3 s; the top-10 method to within 11.1 s. Both read every course low.
+- The Minetti energy-cost model, which sees only the elevation profiles, scores Boston 89 s faster than Berlin because of its 136 m net descent. The simulation has no elevation term, so this is not a test of the model.
+- The weighted composite index (Berlin = 1.000) puts Boston at 1.0092 and New York at 1.0089.
 
-When an elite runs 2:02 in Berlin versus 2:05 in Boston, how much of the gap is the runner and how much is the course? This project quantifies course difficulty across the six Majors (Boston, NYC, Chicago, Berlin, London, Tokyo) by applying three independent frameworks:
+![Within-runner course-pair gaps with bootstrap intervals](outputs/figures/fig3_within_runner_gaps.png)
 
-1. **Elevation/grade-adjusted prediction.** Minetti et al. (2002) energy-cost integration over each course's gradient profile
-2. **Within-runner paired comparison** *(the cleanest)*: same-athlete time deltas across course pairs within 18 months, weather-normalized, bootstrap CIs
-3. **Weather-normalized top-10 average.** Maughan / El Helou penalty curve applied to elite finish times
+## Method
 
-The three are combined into a single **Course Difficulty Index (CDI)** with Berlin = 1.000. A bonus extension scores Sydney and Cape Town under Framework 1.
+`src/build_data.py` draws 400 men and 400 women with a fixed flat-course ability, enters 150 of them in each race from 2015 to 2024 (2020 excluded), and sets each finish time to ability + course penalty + weather penalty + Gaussian noise. The top 100 per gender are kept: 10,800 results and 42,567 same-athlete course pairs within 18 months. Weather is a hand-entered table per edition.
 
-## Headline findings
+`src/analysis.py` then runs three estimators:
 
-- **Boston is the hardest Major.** 101 ± 2 s slower than Berlin for an equivalent runner under the within-runner paired framework
-- **NYC is the second hardest.** 78 ± 2 s slower than Berlin
-- **Berlin, Chicago, London, and Tokyo cluster within 35 s of each other.** Berlin and Chicago are statistically indistinguishable for any practical purpose
-- **Weather variance dominates within-course year-to-year change.** Berlin 2022 (18 °C) and London 2018 (23.5 °C) shifted single-edition winning times by 60–120 s
+1. **Grade-adjusted prediction.** The Minetti et al. (2002) energy-cost polynomial integrated over a 40/40/20 climb/descent/flat approximation of each course, plus grade and turn penalties.
+2. **Within-runner paired comparison.** Weather-normalized same-athlete time differences, least-squares fixed effects per course with Berlin at zero, 2,000-resample bootstrap confidence intervals.
+3. **Weather-normalized top-10 average.** Top-10 times divided by a heat, humidity and wind multiplier after Maughan (2010) and El Helou et al. (2012).
 
-Full methodology, statistical tests, and per-course CDI breakdown in [`writeup.md`](writeup.md).
+The three are combined into a Course Difficulty Index (weights 0.15, 0.50, 0.35), with sensitivity runs that drop the elevation model, restrict to sub-2:10 men, or swap in a linear gain-and-loss elevation model. That last run moves New York above Boston.
 
-## Repository structure
+Stack: Python, pandas, NumPy, SciPy, matplotlib, seaborn, Jupyter. ReportLab and a Node `docx` script built the PDF and Word reports.
 
-```
-marathon-majors-course-difficulty/
-├── data/                          # Four source CSVs (courses, results, weather, paired runners)
-├── notebooks/                     # Jupyter notebook reproducing the analysis end-to-end
-├── src/                           # Python/JS source for data build, analysis, PDF, DOCX, HTML
-├── outputs/                       # Generated figures (400 DPI) and results CSV
-├── reports/                       # PDF and Word versions of the writeup
-├── web/                           # Self-contained HTML article (deployable to Vercel)
-├── writeup.md                     # Full report in markdown, renders on GitHub
-├── README.md                      # This file
-├── LICENSE                        # MIT
-└── requirements.txt
-```
-
-## Reproducing the analysis
+## How to run
 
 ```bash
 git clone https://github.com/lyhjeremy/marathon-majors-course-difficulty.git
 cd marathon-majors-course-difficulty
 pip install -r requirements.txt
-python src/build_data.py        # regenerate data/*.csv (deterministic, seed=42)
-python src/analysis.py          # produce 8 figures + analysis_results.csv (under 90 s)
+python src/build_data.py      # regenerate data/*.csv (seed 42)
+python src/analysis.py        # 8 figures + outputs/analysis_results.csv
+python src/generate_html.py   # web/index.html, the standalone HTML report
 ```
 
-Or open `notebooks/majors_course_difficulty_analysis.ipynb` in Jupyter / VS Code and run all cells.
+## Repository layout
 
-## Data sources
+| Path | Contents |
+|:--|:--|
+| `src/` | Simulation, analysis, and the HTML, PDF and Word report generators |
+| `data/` | The four CSVs (simulated results, pairs, weather, course profiles) |
+| `outputs/` | Figures and `analysis_results.csv` |
+| `notebooks/` | The analysis as a Jupyter notebook |
+| `web/` | Standalone HTML report with embedded figures |
+| `overview/` | The write-up page on the live site |
+| `reports/` | PDF and Word reports (older framing, see correction above) |
 
-| Dataset | Source |
-|---------|--------|
-| Race results (top-100 per Major × year, 2015–2024) | [World Athletics](https://worldathletics.org/competitions), [ARRS](http://arrs.run/), MarathonGuide.com |
-| Course elevation profiles | Official course PDFs published by each Major; Strava canonical race routes |
-| Race-day weather | [Open-Meteo historical API (ERA5)](https://open-meteo.com/en/docs/historical-weather-api); race-day news coverage for ground-truth |
-| Paired-runner pairs | Derived from `majors_results.csv` |
-| Minetti energy-cost curve | Minetti et al. (2002), *Journal of Applied Physiology* 93:1039–1046 |
-| Marathon weather penalty curve | Maughan (2010); El Helou et al. (2012), *PLOS ONE* 7(5) |
+## Limitations
 
-## Related work
-
-- [`boston-marathon-qualifying-fairness`](https://github.com/lyhjeremy/boston-marathon-qualifying-fairness), sibling repo on BQ difficulty parity across age and gender brackets.
+No number here measures a real course. The weather correction divides by the same curve that generated the times, so it is exact by construction, and the simulation has no pacing, fatigue or field-selection effects. The course profiles are hand-entered. The obvious next step is to run the same code on real top-100 results and keep this simulation as the recovery test.
 
 ## License
 
-MIT, see [LICENSE](LICENSE)
-
-## Author
-
-Jeremy Lee, [github.com/lyhjeremy](https://github.com/lyhjeremy)
+[MIT](LICENSE) © 2026 Jeremy Lee
