@@ -264,6 +264,63 @@
 </style>
 </head>
 <body>
+<style>
+  /* Interactive charts. Colors come from the family tokens, so both themes work. */
+  .simnote { margin: 26px 0 0; max-width: 62ch; border: 2px solid var(--ink); padding: 12px 16px;
+             font-family: var(--sans); font-size: 15.5px; line-height: 1.5; color: var(--ink2); }
+  .simnote b { font: 700 13px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+               display: block; margin-bottom: 6px; }
+  .viz { margin-top: 30px; border: 1px solid var(--edge); background: var(--card); padding: 18px 18px 14px; font-family: var(--sans); }
+  .viz h3 { font: 600 clamp(22px, 2.6vw, 28px)/1.06 var(--display); text-transform: uppercase; letter-spacing: .01em;
+            margin: 0 0 6px; max-width: 32ch; }
+  .viz .sub { font-size: 14.5px; color: var(--muted); margin: 0 0 16px; max-width: 64ch; line-height: 1.5; }
+  .ctl { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .ctl button { font: 600 12.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 9px 11px;
+                background: var(--paper); color: var(--ink); border: 1px solid var(--edge); cursor: pointer; }
+  .ctl button:hover { border-color: var(--ink); }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .readout { font: 400 14px/1.5 var(--mono); color: var(--ink); min-height: 3em; border-top: 1px solid var(--rule);
+             padding-top: 10px; margin: 10px 0 0; }
+  .vsrc { font-size: 13px; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
+
+  .sliders { display: grid; grid-template-columns: 1fr; gap: 10px 26px; margin: 0 0 14px; }
+  @media (min-width: 760px) { .sliders { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .sliders label { display: grid; grid-template-columns: minmax(0, 1fr) 3.2em; gap: 2px 10px; align-items: center;
+                   font-size: 14px; color: var(--ink2); }
+  .sliders input { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--accent2); }
+  .sliders output { font: 600 15px/1 var(--mono); color: var(--ink); text-align: right; }
+  .mixrow { display: grid; grid-template-columns: 5.6rem minmax(0, 1fr) 6.6rem; gap: 10px; align-items: center;
+            padding: 7px 0; border-bottom: 1px solid var(--rule); }
+  .mixrow:last-child { border-bottom: 0; }
+  .mixrow .nm { font: 600 20px/1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+  .mixrow .tk { position: relative; height: 20px; }
+  .mixrow .zero { position: absolute; top: -7px; bottom: -7px; border-left: 1px solid var(--ink); }
+  .mixrow .bar { position: absolute; top: 3px; bottom: 3px; background: var(--accent2); }
+  .mixrow .bar.neg { background: var(--muted); }
+  .mixrow .pl { position: absolute; top: -3px; bottom: -3px; border-left: 3px solid var(--accent); }
+  .mixrow .v { font: 400 14px/1.2 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .mixrow .v small { display: block; color: var(--muted); font-size: 12px; }
+  .mixkey { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .mixkey span::before { content: ""; display: inline-block; width: 14px; height: 9px; margin-right: 6px; background: var(--accent2); }
+  .mixkey span.t::before { width: 0; height: 13px; border-left: 3px solid var(--accent); background: none; vertical-align: -2px; }
+  @media (max-width: 520px) {
+    .mixrow { grid-template-columns: 4.4rem minmax(0, 1fr) 5.4rem; gap: 8px; }
+    .mixrow .nm { font-size: 17px; }
+    .mixrow .v { font-size: 12.5px; }
+    .viz { padding: 14px 12px 12px; }
+  }
+  .wxhost { position: relative; }
+  .wxhost svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .wxhost:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .wx-lab { font: 600 17px var(--display); text-transform: uppercase; letter-spacing: .02em; fill: var(--ink); }
+  .wx-ax { font: 400 11px var(--mono); fill: var(--muted); }
+  .wx-pl { font: 600 11px var(--mono); fill: var(--accent); }
+  .wx-bar { fill: var(--accent2); }
+  .wx-bar.on { fill: var(--ink); }
+  .wx-base { stroke: var(--rule); stroke-width: 1; }
+  .wx-planted { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; }
+</style>
+
 <div class="wrap">
   <header class="masthead">
     <div class="logo"><span class="dot" aria-hidden="true"></span>Majors course difficulty</div>
@@ -276,14 +333,19 @@
 
     <p class="hero-sub">
       My 2:48 marathon best came in Berlin, the course everyone calls fast, and I wanted to know
-      what a slower course costs in seconds. Race results can't answer that in a way anyone can
-      check, so I simulated a top-100 elite field for the six World Marathon Majors over 2015 to
-      2024, planted a time penalty on each course, and ran three ranking methods on the result.
-      The <strong>within-runner paired comparison</strong> put Boston 101.0 seconds behind Berlin
-      against a planted 105, and the <strong>weather-normalized top-10 average</strong> came
-      within 11.1 seconds everywhere. The <strong>grade-adjusted energy-cost model</strong>,
-      which reads only the course profiles, says Boston is the fastest of the six.
+      what a slower course costs in seconds. Race results can't settle that, because nobody knows the
+      true answer to check a method against. So I simulated a top-100 elite field for the six World
+      Marathon Majors over 2015 to 2024, planted a time penalty on each course, and ran three ranking
+      methods to see which one finds the penalties again. The <strong>within-runner paired
+      comparison</strong> put Boston 101.0 seconds behind Berlin against a planted 105. The
+      <strong>weather-normalized top-10 average</strong> came within 11.1 seconds on every course. The
+      <strong>grade-adjusted energy-cost model</strong>, which reads only the course profiles, says
+      Boston is the fastest of the six.
     </p>
+
+    <p class="simnote"><b>Simulated data</b>Every finish time on this page was generated by
+      <code>src/build_data.py</code> with seed 42. The numbers test the methods. None of them
+      measures a real course.</p>
 
     <div class="cta-row">
       <a class="btn btn-primary" href="https://github.com/lyhjeremy/marathon-majors-course-difficulty/blob/main/writeup.md">Read the full write-up</a>
@@ -321,7 +383,7 @@
       Each lane is one course. The first column is the penalty written into
       <code>src/build_data.py</code>; the next three are the estimates from
       <code>src/analysis.py</code>, all in seconds slower than Berlin for the same runner.
-      The bar under each estimate is drawn to the same scale, with the planted value as a tick.
+      Bars share one scale, and the planted value is the tick.
     </p>
     <div class="lanes" role="table" aria-label="Planted course penalties and the three methods' estimates, seconds slower than Berlin">
       <div class="lane lane--head" role="row">
@@ -366,7 +428,7 @@
         <span class="est" role="cell" style="--v:0;--t:0">0</span>
       </div>
     </div>
-    <p class="lanes-note">Negative estimates (faster than Berlin) are printed without a bar. Scale: full width = 110 s.</p>
+    <p class="lanes-note">Negative estimates (faster than Berlin) have no bar. Full width is 110 s.</p>
   </section>
 
   <section class="stop">
@@ -375,10 +437,10 @@
     <p>
       Nobody knows the true penalty of a course, so an estimate from race results has nothing
       to be checked against. The build script makes one up. It draws 400 men and 400 women with a fixed
-      flat-course ability, sends 150 of them to each race (weighted toward the faster
-      athletes), and gives each runner a finish time of ability, plus the course penalty, plus
-      a weather penalty, plus normal noise with a 90-second standard deviation. The top 100
-      per gender are kept: 10,800 results over 54 editions, with 2020 left out.
+      flat-course ability and sends 150 of them to each race, weighted toward the faster athletes.
+      Each finish time is ability, plus the course penalty, plus a weather penalty, plus normal noise
+      with a 90-second standard deviation. The top 100 per gender are kept: 10,800 results over 54
+      editions, with 2020 left out.
     </p>
     <p>
       The planted penalties follow the courses' reputations: Berlin 0, Chicago 12, Tokyo 28,
@@ -386,6 +448,24 @@
       start temperature, humidity and wind for every edition, which the script describes as
       anchored to reported race-day conditions (Boston 2018 at 3.9&deg;C with 40 km/h wind,
       London 2018 at 23.5&deg;C).
+    </p>
+
+    <div class="viz" id="wx">
+      <h3>On average, the simulated weather costs more than the course on every Major</h3>
+      <p class="sub">Seconds the simulation's weather term adds to a 2:10 runner in each edition,
+        with the planted course penalty as a dashed line. Hover, tap, or focus the chart and use the arrow keys.</p>
+      <div class="wxhost" id="wx-host" tabindex="0" role="img"
+        aria-label="Weather penalty per edition for six courses, 2015 to 2024. The average edition costs 36 seconds in Tokyo, 121 in New York, 156 in Chicago, 164 in London, 183 in Boston and 209 in Berlin, more than each course's planted penalty. London 2018 is the largest at 530 seconds."></div>
+      <p class="readout" id="wx-out" aria-live="polite"></p>
+      <p class="vsrc">Temperature, humidity and wind from <code>data/race_weather.csv</code>, run through
+        <code>weather_multiplier()</code> in <code>src/analysis.py</code> (the same curve <code>build_data.py</code>
+        uses), times 7,800 s.</p>
+    </div>
+    <p style="margin-top:22px">
+      The average edition's weather costs 36 seconds in Tokyo and 209 in Berlin, where every race starts
+      between 12 and 18&deg;C, above the curve's 10&deg;C floor. London 2018 adds 530 seconds, five times
+      Boston's planted course penalty. A method that misreads the weather by a few percent would swamp the
+      course signal, which is why methods 2 and 3 divide it out first.
     </p>
   </section>
 
@@ -403,15 +483,15 @@
       The method lands within 7.3 seconds of every planted value, and below it each time:
       by 0.6 s on Chicago, 4.0 on Boston, 4.3 on London, 7.0 on Tokyo and 7.3 on New York.
       Only Chicago's interval contains its planted value. On the other four the shortfall is
-      too large for sampling noise, which makes it a bias, and the code doesn't test where it
+      too large for sampling noise, so it is a bias, and the code doesn't test where it
       comes from.
     </p>
     <figure>
       <div class="plate">
-        <img width="4508" height="3705" src="../outputs/figures/fig3_within_runner_gaps.png" fetchpriority="high"
-          alt="Forest plot of mean same-athlete time differences for the 15 course pairs, with bootstrap intervals; the pairs involving Boston and New York have the largest gaps." />
+        <img width="4508" height="3705" src="../outputs/figures/fig3_within_runner_gaps.png" loading="lazy"
+          alt="Forest plot of mean same-athlete time differences for the 15 course pairs, with intervals; the pairs involving Boston and New York have the largest gaps." />
       </div>
-      <figcaption>Mean same-athlete delta for each of the 15 course pairs, with 95% bootstrap intervals.</figcaption>
+      <figcaption>Mean same-athlete delta for each of the 15 course pairs, with 95% intervals, as plotted by <code>src/analysis.py</code>.</figcaption>
     </figure>
   </section>
 
@@ -430,57 +510,68 @@
       over each course, treating it as 40% climbing at the average up-grade, 40% descending
       and 20% flat, with small extra penalties for grades over 1.5% and for courses with
       many turns. It never sees a race result. On these profiles it scores Boston 89 s faster
-      than Berlin and Tokyo 17 s faster. Since the simulation contains no elevation term,
-      the gap between this column and the planted one says nothing about whether the model
-      is right about Boston itself.
+      than Berlin and Tokyo 17 s faster. The simulation has no elevation term, so the gap between
+      this column and the planted one says nothing about whether the model is right about Boston.
     </p>
-    <div class="panels">
-      <figure>
-        <div class="plate">
-          <img width="3939" height="2507" src="../outputs/figures/fig5_framework_comparison.png" loading="lazy"
-            alt="Heatmap of each course's difficulty factor under the three methods; Boston's grade-adjusted cell is below 1.000 while its other two cells are the highest on the chart." />
-        </div>
-        <figcaption>Difficulty factor per course and method, Berlin = 1.000.</figcaption>
-      </figure>
-      <figure>
-        <div class="plate">
-          <img width="5296" height="2507" src="../outputs/figures/fig2_elevation_adjusted.png" loading="lazy"
-            alt="Men's raw median finish time and the Minetti elevation-adjusted equivalent for each course; Boston's adjusted value moves below its raw median." />
-        </div>
-        <figcaption>Raw median against the elevation-adjusted equivalent, men.</figcaption>
-      </figure>
-    </div>
+    <figure>
+      <div class="plate">
+        <img width="5296" height="2507" src="../outputs/figures/fig2_elevation_adjusted.png" loading="lazy"
+          alt="Men's raw median finish time and the Minetti elevation-adjusted equivalent for each course; Boston's adjusted value moves below its raw median." />
+      </div>
+      <figcaption>Raw median against the elevation-adjusted equivalent, men.</figcaption>
+    </figure>
   </section>
 
   <section class="stop">
     <p class="eyebrow">The composite &middot; course difficulty index</p>
-    <h2>Weighting the three gives Boston and New York nearly level</h2>
+    <h2>The weights decide whether Boston or New York comes out hardest</h2>
     <p>
       Each method's offset becomes a factor on a 7,800-second (2:10) reference, and the index
       is 0.15 &times; grade-adjusted + 0.50 &times; paired + 0.35 &times; weather-normalized.
       The order is Boston 1.0092, New York 1.0089, London 1.0034, Tokyo 1.0018, Chicago
       1.0012, Berlin 1.0000. Boston's composite is only 72 seconds over Berlin, against 101
       from the paired fit alone, because the elevation model's negative number pulls it down.
+      The weights are a judgment call in the code, so the chart below lets you set your own.
     </p>
-    <p>
-      Two of the three sensitivity runs keep that order. Dropping the grade-adjusted method
-      raises Boston to 1.0110, and restricting the paired fit to men's pairs with both times
-      under 2:10 gives 1.0088. The third swaps the top two; with a simpler gain-and-loss
-      elevation model in place of Minetti, New York moves to 1.0166, above Boston at 1.0131.
-    </p>
-    <figure>
-      <div class="plate">
-        <img width="4508" height="2506" src="../outputs/figures/fig6_course_difficulty_index.png" loading="lazy"
-          alt="Bar chart of the composite Course Difficulty Index for the six courses, Berlin at 1.000 and Boston and New York both near 1.009." />
+
+    <div class="viz" id="mix">
+      <h3 id="mix-title">At the script's weights, Boston leads New York by 3 seconds</h3>
+      <p class="sub">Composite = 1 + (w<sub>1</sub>&middot;grade-adjusted + w<sub>2</sub>&middot;paired + w<sub>3</sub>&middot;top-10) / 7,800 s,
+        the formula in <code>compute_cdi()</code>. Like the script, the chart does not rescale weights that don't add to 1.</p>
+      <div class="sliders">
+        <label for="w1"><span>w<sub>1</sub> grade-adjusted</span><output id="w1o">0.15</output>
+          <input id="w1" type="range" min="0" max="1" step="0.05" value="0.15" /></label>
+        <label for="w2"><span>w<sub>2</sub> paired</span><output id="w2o">0.50</output>
+          <input id="w2" type="range" min="0" max="1" step="0.05" value="0.50" /></label>
+        <label for="w3"><span>w<sub>3</sub> top-10, weather</span><output id="w3o">0.35</output>
+          <input id="w3" type="range" min="0" max="1" step="0.05" value="0.35" /></label>
       </div>
-      <figcaption>The composite index, with intervals from the paired bootstrap scaled by its 0.50 weight.</figcaption>
-    </figure>
+      <div class="ctl" role="group" aria-label="Weight presets">
+        <button type="button" data-w="0.15,0.5,0.35" aria-pressed="true">Script's weights</button>
+        <button type="button" data-w="0,0.5,0.35" aria-pressed="false">Drop elevation</button>
+        <button type="button" data-w="0,1,0" aria-pressed="false">Paired only</button>
+        <button type="button" data-w="1,0,0" aria-pressed="false">Elevation only</button>
+      </div>
+      <div id="mix-rows" aria-hidden="true"></div>
+      <div class="mixkey" aria-hidden="true"><span>Composite, seconds over Berlin</span><span class="t">Planted penalty</span></div>
+      <p class="readout" id="mix-out" aria-live="polite"></p>
+      <p class="vsrc">Per-method offsets from <code>outputs/analysis_results.csv</code>; planted penalties from
+        <code>COURSE_PENALTY</code> in <code>src/build_data.py</code>. The planted tick is only a fair
+        comparison when the weights add to 1.</p>
+    </div>
+
+    <p style="margin-top:22px">
+      The script's own sensitivity runs agree with the chart. Dropping the grade-adjusted method
+      (the "drop elevation" preset) raises Boston to 1.0110. Restricting the paired fit to men's pairs
+      with both times under 2:10 gives 1.0088. The third run swaps the top two: with a simpler
+      gain-and-loss elevation model in place of Minetti, New York moves to 1.0166, above Boston at 1.0131.
+    </p>
     <figure>
       <div class="plate">
         <img width="5305" height="2507" src="../outputs/figures/fig7_sensitivity.png" loading="lazy"
           alt="Grouped bars of the index under four assumption sets for each course; New York rises above Boston under the gain-and-loss elevation model." />
       </div>
-      <figcaption>Index under the baseline and three alternative assumptions.</figcaption>
+      <figcaption>Index under the baseline and the three alternative assumptions, as plotted by <code>src/analysis.py</code>.</figcaption>
     </figure>
   </section>
 
@@ -490,19 +581,19 @@
     <p>
       The athletes and results are generated by <code>src/build_data.py</code> with seed 42.
       The names are combinations of real elite first and last names with a number attached,
-      and the countries are drawn at random. The earlier version of this page presented
+      and the countries are drawn at random. An earlier version of this page presented
       Boston's +101 s as a finding about the real course; it is the paired method's estimate
       of a penalty that was set to 105 in code.
     </p>
     <p>
       The test is also kinder than race data would be. The weather correction divides by the
-      same curve that generated the times, so it is exactly right by construction, and the
-      simulation leaves out pacing strategy, fatigue that depends on where the hills fall, and
+      same curve that generated the times, so it is exactly right by construction. The
+      simulation also leaves out pacing strategy, fatigue that depends on where the hills fall, and
       differences in who chooses to race where. Actual fields have all three.
     </p>
     <p>
       The course profiles (gain, loss, maximum grade, turn count) are typed into
-      <code>data/course_profiles.csv</code>; the 40/40/20 split is a rough stand-in for a
+      <code>data/course_profiles.csv</code>, and the 40/40/20 split is a rough stand-in for a
       segment-by-segment integration. Sydney and Cape Town appear only under the
       grade-adjusted method.
     </p>
@@ -514,6 +605,7 @@
     <dl class="specs">
       <div class="spec"><dt>Results</dt><dd>Simulated: 10,800 top-100 finishes, 6 courses &times; 9 years &times; 2 genders, seed 42</dd></div>
       <div class="spec"><dt>Pairs</dt><dd>42,567 same-athlete course pairs within 18 months, derived from the results</dd></div>
+      <div class="spec"><dt>Weather</dt><dd>54 hand-entered editions: start temperature, humidity, dew point, wind</dd></div>
       <div class="spec"><dt>Elevation</dt><dd>Eight hand-entered course profiles: gain, loss, net drop, maximum grade, turns</dd></div>
       <div class="spec"><dt>Energy cost</dt><dd>Minetti et al. (2002), <em>J. Appl. Physiol.</em> 93:1039&ndash;1046</dd></div>
       <div class="spec"><dt>Heat penalty</dt><dd>Curve after Maughan (2010) and El Helou et al. (2012), <em>PLOS ONE</em> 7(5)</dd></div>
@@ -545,5 +637,125 @@
     </p>
   </footer>
 </div>
+
+<script>
+(function () {
+  var NAME = { boston: "Boston", nyc: "New York", london: "London", tokyo: "Tokyo", chicago: "Chicago", berlin: "Berlin" };
+  var ORDER = ["boston", "nyc", "london", "tokyo", "chicago", "berlin"];
+
+  /* ---- weather small multiples ---- */
+  /* data/race_weather.csv: course, year, start_temp_c, start_humidity, start_wind_kph */
+  var W = [["berlin",2015,14.0,70,12],["berlin",2016,15.0,65,10],["berlin",2017,13.0,90,18],["berlin",2018,15.0,65,12],["berlin",2019,12.0,80,10],["berlin",2021,14.0,65,12],["berlin",2022,18.0,55,10],["berlin",2023,15.0,60,8],["berlin",2024,14.0,65,10],["boston",2015,5.0,75,25],["boston",2016,16.0,55,15],["boston",2017,22.0,50,18],["boston",2018,3.9,95,40],["boston",2019,10.0,80,18],["boston",2021,12.0,65,14],["boston",2022,12.0,70,16],["boston",2023,15.0,75,20],["boston",2024,10.0,60,12],["chicago",2015,12.0,65,14],["chicago",2016,12.0,75,18],["chicago",2017,14.0,80,14],["chicago",2018,11.0,80,16],["chicago",2019,14.0,70,12],["chicago",2021,16.0,60,10],["chicago",2022,15.0,55,12],["chicago",2023,11.0,70,12],["chicago",2024,12.0,65,12],["london",2015,10.0,75,12],["london",2016,12.0,70,14],["london",2017,12.0,65,18],["london",2018,23.5,50,16],["london",2019,16.0,60,14],["london",2021,12.0,75,12],["london",2022,12.0,70,14],["london",2023,10.0,70,12],["london",2024,13.0,65,14],["nyc",2015,10.0,70,18],["nyc",2016,13.0,60,16],["nyc",2017,16.0,55,14],["nyc",2018,11.0,60,15],["nyc",2019,12.0,55,16],["nyc",2021,14.0,50,12],["nyc",2022,16.0,55,14],["nyc",2023,11.0,65,14],["nyc",2024,13.0,60,12],["tokyo",2015,10.0,50,10],["tokyo",2016,8.0,55,12],["tokyo",2017,9.0,50,14],["tokyo",2018,10.0,70,16],["tokyo",2019,8.0,60,18],["tokyo",2021,16.0,60,8],["tokyo",2022,8.0,50,10],["tokyo",2023,9.0,55,12],["tokyo",2024,11.0,60,10]];
+  var PLANT = { berlin: 0, chicago: 12, london: 35, tokyo: 28, nyc: 85, boston: 105 };
+  var YEARS = [2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024];
+  function mult(t, h, w) { /* weather_multiplier() in src/analysis.py */
+    var tp = t > 10 ? (t - 10) * 0.005 : (t < 5 ? (5 - t) * 0.002 : 0);
+    return 1 + tp + Math.max(0, h - 60) * 0.0005 + Math.max(0, w - 15) * 0.0005;
+  }
+  var cell = {};
+  W.forEach(function (r) { cell[r[0] + r[1]] = { c: r[0], y: r[1], t: r[2], h: r[3], w: r[4], s: 7800 * (mult(r[2], r[3], r[4]) - 1) }; });
+  var host = document.getElementById("wx-host"), out = document.getElementById("wx-out");
+  var sel = { r: 2, k: 3 }; /* London 2018 */
+  var NS = "http://www.w3.org/2000/svg";
+  function el(n, a, txt) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; }
+  var geo = null;
+  function drawWx() {
+    var Wd = host.clientWidth; if (!Wd) return;
+    var narrow = Wd < 560, L = narrow ? 76 : 112, R = 34, top = 6, rowH = narrow ? 58 : 66, gap = 14;
+    var plotW = Wd - L - R, H = top + ORDER.length * rowH + 22, MAX = 540, inner = rowH - gap;
+    var colW = plotW / YEARS.length, bw = Math.max(6, colW * 0.62);
+    var svg = el("svg", { viewBox: "0 0 " + Wd + " " + H, width: Wd, height: H, "aria-hidden": "true" });
+    ORDER.forEach(function (c, i) {
+      var y0 = top + (i + 1) * rowH - 4;
+      svg.appendChild(el("text", { x: 0, y: y0 - 4, "class": "wx-lab" }, NAME[c]));
+      svg.appendChild(el("line", { x1: L, x2: L + plotW, y1: y0, y2: y0, "class": "wx-base" }));
+      YEARS.forEach(function (yr, k) {
+        var d = cell[c + yr], h = Math.max(d.s / MAX * inner, d.s > 0 ? 1.5 : 0);
+        var on = (sel.r === i && sel.k === k);
+        svg.appendChild(el("rect", { x: L + k * colW + (colW - bw) / 2, y: y0 - h, width: bw, height: h, "class": "wx-bar" + (on ? " on" : "") }));
+        if (on && h === 0) svg.appendChild(el("rect", { x: L + k * colW + (colW - bw) / 2, y: y0 - 2, width: bw, height: 2, "class": "wx-bar on" }));
+      });
+      if (PLANT[c] > 0) {
+        var yp = y0 - PLANT[c] / MAX * inner;
+        svg.appendChild(el("line", { x1: L, x2: L + plotW, y1: yp, y2: yp, "class": "wx-planted" }));
+        svg.appendChild(el("text", { x: L + plotW + 4, y: yp + 4, "class": "wx-pl" }, PLANT[c]));
+      }
+    });
+    YEARS.forEach(function (yr, k) {
+      svg.appendChild(el("text", { x: L + k * colW + colW / 2, y: H - 4, "text-anchor": "middle", "class": "wx-ax" }, narrow ? "'" + String(yr).slice(2) : yr));
+    });
+    host.innerHTML = ""; host.appendChild(svg);
+    geo = { L: L, top: top, rowH: rowH, colW: colW };
+    var d = cell[ORDER[sel.r] + YEARS[sel.k]];
+    out.textContent = NAME[d.c] + " " + d.y + ": " + d.t.toFixed(1) + "°C, " + d.h + "% humidity, " + d.w + " km/h wind. Weather adds "
+      + Math.round(d.s) + " s at 2:10 pace (" + (d.s / 78).toFixed(1) + "%); the planted course penalty is " + PLANT[d.c] + " s.";
+  }
+  function pick(ev) {
+    if (!geo) return;
+    var b = host.getBoundingClientRect(), x = ev.clientX - b.left, y = ev.clientY - b.top;
+    var k = Math.floor((x - geo.L) / geo.colW), r = Math.floor((y - geo.top) / geo.rowH);
+    if (k >= 0 && k < YEARS.length && r >= 0 && r < ORDER.length && (k !== sel.k || r !== sel.r)) { sel = { r: r, k: k }; drawWx(); }
+  }
+  host.addEventListener("pointermove", pick);
+  host.addEventListener("pointerdown", pick);
+  host.addEventListener("keydown", function (e) {
+    var m = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0] }[e.key];
+    if (!m) return; e.preventDefault();
+    sel = { r: Math.min(ORDER.length - 1, Math.max(0, sel.r + m[0])), k: Math.min(YEARS.length - 1, Math.max(0, sel.k + m[1])) };
+    drawWx();
+  });
+
+  /* ---- composite weight mixer ---- */
+  /* outputs/analysis_results.csv: f1_vs_berlin_s, f2_offset_s, f3_offset_s */
+  var EST = {
+    boston: [-89.419, 101.001, 100.135], nyc: [15.363, 77.660, 80.346], london: [3.616, 30.705, 29.706],
+    tokyo: [-16.651, 21.002, 16.932], chicago: [-3.510, 11.388, 11.450], berlin: [0, 0, 0]
+  };
+  var ins = [1, 2, 3].map(function (i) { return document.getElementById("w" + i); });
+  var outs = [1, 2, 3].map(function (i) { return document.getElementById("w" + i + "o"); });
+  var rows = document.getElementById("mix-rows"), mixOut = document.getElementById("mix-out"), title = document.getElementById("mix-title");
+  var btns = [].slice.call(document.querySelectorAll("#mix .ctl button"));
+  var LO = -100, HI = 115;
+  function pct(v) { return ((Math.min(HI, Math.max(LO, v)) - LO) / (HI - LO) * 100).toFixed(2) + "%"; }
+  function sgn(v) { return Math.abs(v) < 0.05 ? "0" : (v > 0 ? "+" : "\u2212") + Math.abs(v).toFixed(1); }
+  function drawMix() {
+    var w = ins.map(function (i) { return parseFloat(i.value); });
+    outs.forEach(function (o, i) { o.textContent = w[i].toFixed(2); });
+    var key = w.map(function (x) { return +x.toFixed(2); }).join(",");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.w.split(",").map(Number).join(",") === key ? "true" : "false"); });
+    var res = ORDER.map(function (c) {
+      var e = EST[c], s = w[0] * e[0] + w[1] * e[1] + w[2] * e[2];
+      return { c: c, s: s, cdi: 1 + s / 7800 };
+    }).sort(function (a, b) { return b.s - a.s; });
+    var z = pct(0), html = "";
+    res.forEach(function (r) {
+      var a = pct(Math.min(0, r.s)), bnd = pct(Math.max(0, r.s));
+      html += '<div class="mixrow"><span class="nm">' + NAME[r.c] + '</span><span class="tk">'
+        + '<span class="bar' + (r.s < 0 ? " neg" : "") + '" style="left:' + a + ';width:calc(' + bnd + ' - ' + a + ')"></span>'
+        + '<span class="zero" style="left:' + z + '"></span>'
+        + (PLANT[r.c] > 0 ? '<span class="pl" style="left:' + pct(PLANT[r.c]) + '"></span>' : "")
+        + '</span><span class="v">' + sgn(r.s) + ' s<small>' + r.cdi.toFixed(4) + '</small></span></div>';
+    });
+    rows.innerHTML = html;
+    var sum = w[0] + w[1] + w[2], a = res[0], b = res[1];
+    title.textContent = (key === "0.15,0.5,0.35" ? "At the script's weights, " : "At these weights, ")
+      + NAME[a.c] + " leads " + NAME[b.c] + " by " + Math.round(a.s - b.s) + " second" + (Math.round(a.s - b.s) === 1 ? "" : "s");
+    mixOut.textContent = "Weights sum to " + sum.toFixed(2) + ". Hardest: " + NAME[a.c] + " " + sgn(a.s) + " s (" + a.cdi.toFixed(4)
+      + "), then " + NAME[b.c] + " " + sgn(b.s) + " s (" + b.cdi.toFixed(4) + ")."
+      + (Math.abs(sum - 1) > 0.001 ? " The weights don't add to 1, so the planted ticks aren't a like-for-like comparison." : "");
+  }
+  ins.forEach(function (i) { i.addEventListener("input", drawMix); });
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () { b.dataset.w.split(",").forEach(function (v, i) { ins[i].value = v; }); drawMix(); });
+  });
+
+  drawMix();
+  drawWx();
+  var lastW = host.clientWidth;
+  function onResize() { if (host.clientWidth !== lastW) { lastW = host.clientWidth; drawWx(); } }
+  if (window.ResizeObserver) new ResizeObserver(onResize).observe(host);
+  else window.addEventListener("resize", onResize);
+})();
+</script>
 </body>
 </html>

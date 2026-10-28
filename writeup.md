@@ -155,7 +155,7 @@ The two extension courses have elevation profiles and no simulated results, so o
 
 Every finish time is simulated, so no number here measures a real course. The planted penalties follow the courses' reputations; they are inputs to the test, and the test cannot confirm them.
 
-The weather correction is exact by construction. The paired and top-10 methods divide by the same weather curve that generated the times, and real weather effects would not match any fixed curve this well. The simulation also leaves out what makes race data hard: pacing strategy, fatigue that depends on where the hills fall, and differences in which athletes choose which race. Each of these would bias the paired and top-10 methods on real results in ways this test can't show.
+The weather correction is exact by construction. The paired and top-10 methods divide by the same weather curve that generated the times, and real weather effects would not match any fixed curve this well. The weather term is also large next to the course penalties: at 2:10 pace it averages 36 s per edition in Tokyo and 209 s in Berlin, and London 2018 adds 530 s, so a real-world correction that is off by a small fraction would swamp the smaller courses' penalties. The simulation also leaves out what makes race data hard: pacing strategy, fatigue that depends on where the hills fall, and differences in which athletes choose which race. Each of these would bias the paired and top-10 methods on real results in ways this test can't show.
 
 Both data-driven methods read low. Every paired and top-10 estimate is below its planted value, and the code doesn't isolate why. One untested candidate is the selection of the top 100 from 150 starters.
 

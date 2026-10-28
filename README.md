@@ -20,7 +20,7 @@ Seconds slower than Berlin for the same runner. "Planted" is the penalty written
 | Tokyo | 28 | +21.0 (18.7 to 23.2) | +16.9 | −16.7 |
 | Chicago | 12 | +11.4 (9.2 to 13.5) | +11.4 | −3.5 |
 
-The paired method recovers every planted penalty to within 7.3 s and the top-10 method to within 11.1 s, though both read every course low. The Minetti energy-cost model sees only the elevation profiles and scores Boston 89 s faster than Berlin, because of its 136 m net descent; the simulation has no elevation term, so that number is not a test of the model. A weighted composite index (Berlin = 1.000) puts Boston at 1.0092 and New York at 1.0089.
+The paired method recovers every planted penalty to within 7.3 s and the top-10 method to within 11.1 s, though both read every course low. The Minetti energy-cost model sees only the elevation profiles and scores Boston 89 s faster than Berlin, because of its 136 m net descent; the simulation has no elevation term, so that number is not a test of the model. A weighted composite index (Berlin = 1.000) puts Boston at 1.0092 and New York at 1.0089. The [write-up page](https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/) has a version of the composite where you can set the three weights yourself.
 
 ![Within-runner course-pair gaps with bootstrap intervals](outputs/figures/fig3_within_runner_gaps.png)
 
