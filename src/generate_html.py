@@ -140,7 +140,7 @@ HTML = f"""<!DOCTYPE html>
     <p class="byline">Jeremy Lee &middot; 2026 &middot; <a href="../">project page</a> &middot; <a href="https://github.com/lyhjeremy/marathon-majors-course-difficulty">code</a></p>
   </header>
 
-  <p>How much time does a marathon course cost a runner compared with Berlin? With real results there is no true answer to check a method against, so this project builds one. <code>src/build_data.py</code> simulates a top-100 elite field for the six World Marathon Majors from 2015 to 2024 and adds a fixed penalty to every finish on each course: Berlin 0, Chicago 12, Tokyo 28, London 35, New York 85 and Boston 105 seconds. Three ranking methods then try to recover those numbers.</p>
+  <p>How much time does a marathon course cost a runner compared with Berlin? Race results have no true answer to check a method against, so this project builds one. <code>src/build_data.py</code> simulates a top-100 elite field for the six World Marathon Majors from 2015 to 2024 and adds a fixed penalty to every finish on each course: Berlin 0, Chicago 12, Tokyo 28, London 35, New York 85 and Boston 105 seconds. Three ranking methods then try to recover those numbers.</p>
 
   <p>The <strong>within-runner paired comparison</strong> recovers every planted penalty to within 7.3 seconds: Boston +101.0, New York +77.7, London +30.7, Tokyo +21.0, Chicago +11.4. The weather-normalized top-10 average is within 11.1 seconds. The grade-adjusted energy-cost model, which reads only the course elevation profiles, puts Boston 89 seconds faster than Berlin.</p>
 
@@ -233,7 +233,7 @@ HTML = f"""<!DOCTYPE html>
   <h2>7. What this doesn't show</h2>
 
   <div class="note">
-    <p>None of these numbers is a measurement of a real course. The test is also easier than real data: the weather correction uses the same curve that generated the times, and the simulation has no pacing strategy, no fatigue tied to where the hills fall, and no difference in who races where. The simulation has no elevation term, so the gap between the grade-adjusted column and the planted one says nothing about whether the Minetti model is right about the real Boston. Course profiles are hand-entered, and the 40/40/20 split is a rough stand-in for a segment-by-segment integration.</p>
+    <p>None of these numbers measures an actual course. The test is also easier than race data would be: the weather correction uses the same curve that generated the times, and the simulation has no pacing strategy, no fatigue tied to where the hills fall, and no difference in who races where. The simulation has no elevation term, so the gap between the grade-adjusted column and the planted one says nothing about whether the Minetti model is right about Boston itself. Course profiles are hand-entered, and the 40/40/20 split is a rough stand-in for a segment-by-segment integration.</p>
   </div>
 
   <p>Code, data and the notebook are at <a href="https://github.com/lyhjeremy/marathon-majors-course-difficulty">github.com/lyhjeremy/marathon-majors-course-difficulty</a>. <code>python src/build_data.py</code> then <code>python src/analysis.py</code> reproduce every number here.</p>

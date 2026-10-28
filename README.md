@@ -1,6 +1,6 @@
 # Marathon Majors course difficulty
 
-Three methods for ranking the six World Marathon Majors by course difficulty, tested on a simulated elite field where each course's true penalty is known.
+How many seconds does Boston cost compared with Berlin? This repo tests three ways of answering that on a simulated elite field, where each course's penalty is set in code and the right answer is known.
 
 [Live site](https://lyhjeremy.github.io/marathon-majors-course-difficulty/) · [Write-up](https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/) · [Full report (Markdown)](writeup.md) · [Notebook](notebooks/majors_course_difficulty_analysis.ipynb)
 
@@ -20,9 +20,7 @@ Seconds slower than Berlin for the same runner. "Planted" is the penalty written
 | Tokyo | 28 | +21.0 (18.7 to 23.2) | +16.9 | −16.7 |
 | Chicago | 12 | +11.4 (9.2 to 13.5) | +11.4 | −3.5 |
 
-- The paired method recovers every planted penalty to within 7.3 s; the top-10 method to within 11.1 s. Both read every course low.
-- The Minetti energy-cost model, which sees only the elevation profiles, scores Boston 89 s faster than Berlin because of its 136 m net descent. The simulation has no elevation term, so this is not a test of the model.
-- The weighted composite index (Berlin = 1.000) puts Boston at 1.0092 and New York at 1.0089.
+The paired method recovers every planted penalty to within 7.3 s and the top-10 method to within 11.1 s, though both read every course low. The Minetti energy-cost model sees only the elevation profiles and scores Boston 89 s faster than Berlin, because of its 136 m net descent; the simulation has no elevation term, so that number is not a test of the model. A weighted composite index (Berlin = 1.000) puts Boston at 1.0092 and New York at 1.0089.
 
 ![Within-runner course-pair gaps with bootstrap intervals](outputs/figures/fig3_within_runner_gaps.png)
 
@@ -36,7 +34,7 @@ Seconds slower than Berlin for the same runner. "Planted" is the penalty written
 2. **Within-runner paired comparison.** Weather-normalized same-athlete time differences, least-squares fixed effects per course with Berlin at zero, 2,000-resample bootstrap confidence intervals.
 3. **Weather-normalized top-10 average.** Top-10 times divided by a heat, humidity and wind multiplier after Maughan (2010) and El Helou et al. (2012).
 
-The three are combined into a Course Difficulty Index (weights 0.15, 0.50, 0.35), with sensitivity runs that drop the elevation model, restrict to sub-2:10 men, or swap in a linear gain-and-loss elevation model. That last run moves New York above Boston.
+A Course Difficulty Index combines the three with weights 0.15, 0.50 and 0.35. Sensitivity runs drop the elevation model, restrict to sub-2:10 men, or swap in a linear gain-and-loss elevation model, and only the last one changes the order (New York moves above Boston).
 
 Stack: Python, pandas, NumPy, SciPy, matplotlib, seaborn, Jupyter. ReportLab and a Node `docx` script built the PDF and Word reports.
 
@@ -65,7 +63,7 @@ python src/generate_html.py   # web/index.html, the standalone HTML report
 
 ## Limitations
 
-No number here measures a real course. The weather correction divides by the same curve that generated the times, so it is exact by construction, and the simulation has no pacing, fatigue or field-selection effects. The course profiles are hand-entered. The obvious next step is to run the same code on real top-100 results and keep this simulation as the recovery test.
+No number here measures an actual course. The weather correction divides by the same curve that generated the times, which makes it exact by construction, and the simulation has no pacing, fatigue or field-selection effects. The course profiles are hand-entered. The next step is to run the same code on top-100 results from the races themselves and keep this simulation as the recovery test.
 
 ## License
 

@@ -275,13 +275,14 @@
     <h1>The paired method finds each planted course penalty to within 8 seconds</h1>
 
     <p class="hero-sub">
-      How much time does a marathon course cost a runner, compared with Berlin? I simulated a
-      top-100 elite field for the six World Marathon Majors over 2015 to 2024, planted a known
-      time penalty on each course, and ran three ranking methods on the result. The
-      <strong>within-runner paired comparison</strong> put Boston 101.0 seconds behind Berlin
-      against a planted 105. The <strong>weather-normalized top-10 average</strong> came within
-      11.1 seconds everywhere. The <strong>grade-adjusted energy-cost model</strong>, which reads
-      only the course profiles, says Boston is the fastest of the six.
+      My 2:48 marathon best came in Berlin, the course everyone calls fast, and I wanted to know
+      what a slower course costs in seconds. Race results can't answer that in a way anyone can
+      check, so I simulated a top-100 elite field for the six World Marathon Majors over 2015 to
+      2024, planted a time penalty on each course, and ran three ranking methods on the result.
+      The <strong>within-runner paired comparison</strong> put Boston 101.0 seconds behind Berlin
+      against a planted 105, and the <strong>weather-normalized top-10 average</strong> came
+      within 11.1 seconds everywhere. The <strong>grade-adjusted energy-cost model</strong>,
+      which reads only the course profiles, says Boston is the fastest of the six.
     </p>
 
     <div class="cta-row">
@@ -370,10 +371,10 @@
 
   <section class="stop">
     <p class="eyebrow">Why simulate &middot; a test with a known answer</p>
-    <h2>Real results can't tell you whether a method is right</h2>
+    <h2>Race results can't tell you whether a method is right</h2>
     <p>
-      With real race results there is no true course penalty to check an estimate against.
-      So the build script makes one up. It draws 400 men and 400 women with a fixed
+      Nobody knows the true penalty of a course, so an estimate from race results has nothing
+      to be checked against. The build script makes one up. It draws 400 men and 400 women with a fixed
       flat-course ability, sends 150 of them to each race (weighted toward the faster
       athletes), and gives each runner a finish time of ability, plus the course penalty, plus
       a weather penalty, plus normal noise with a 90-second standard deviation. The top 100
@@ -401,8 +402,9 @@
     <p>
       The method lands within 7.3 seconds of every planted value, and below it each time:
       by 0.6 s on Chicago, 4.0 on Boston, 4.3 on London, 7.0 on Tokyo and 7.3 on New York.
-      Only Chicago's interval contains its planted value, so on the other four the shortfall
-      is a bias in the estimate, not noise. The code doesn't test where it comes from.
+      Only Chicago's interval contains its planted value. On the other four the shortfall is
+      too large for sampling noise, which makes it a bias, and the code doesn't test where it
+      comes from.
     </p>
     <figure>
       <div class="plate">
@@ -420,17 +422,17 @@
       The weather-normalized method averages each edition's top 10 per gender, divides by the
       same Maughan / El Helou style multiplier (0.5% per &deg;C above 10&deg;C, 0.2% per
       &deg;C below 5&deg;C, plus small humidity and wind terms), and averages across years.
-      It puts Boston at +100.1 s and New York at +80.3 s. Its worst miss is Tokyo, 16.9
-      against 28.
+      It puts Boston at +100.1 s and New York at +80.3 s, and misses worst on Tokyo (16.9
+      against 28).
     </p>
     <p>
       The grade-adjusted method integrates the Minetti et al. (2002) energy-cost polynomial
       over each course, treating it as 40% climbing at the average up-grade, 40% descending
       and 20% flat, with small extra penalties for grades over 1.5% and for courses with
       many turns. It never sees a race result. On these profiles it scores Boston 89 s faster
-      than Berlin and Tokyo 17 s faster. The simulation contains no elevation term at all, so
+      than Berlin and Tokyo 17 s faster. Since the simulation contains no elevation term,
       the gap between this column and the planted one says nothing about whether the model
-      is right about the real Boston.
+      is right about Boston itself.
     </p>
     <div class="panels">
       <figure>
@@ -463,8 +465,8 @@
     <p>
       Two of the three sensitivity runs keep that order. Dropping the grade-adjusted method
       raises Boston to 1.0110, and restricting the paired fit to men's pairs with both times
-      under 2:10 gives 1.0088. The third swaps the top two: a simpler gain-and-loss elevation
-      model in place of Minetti moves New York to 1.0166, above Boston at 1.0131.
+      under 2:10 gives 1.0088. The third swaps the top two; with a simpler gain-and-loss
+      elevation model in place of Minetti, New York moves to 1.0166, above Boston at 1.0131.
     </p>
     <figure>
       <div class="plate">
@@ -484,7 +486,7 @@
 
   <section class="stop stop--warn">
     <p class="eyebrow">Limitations &middot; what this doesn't show</p>
-    <h2>None of these numbers measures a real course</h2>
+    <h2>None of these numbers measures an actual course</h2>
     <p>
       The athletes and results are generated by <code>src/build_data.py</code> with seed 42.
       The names are combinations of real elite first and last names with a number attached,
@@ -493,10 +495,10 @@
       of a penalty that was set to 105 in code.
     </p>
     <p>
-      The test is also kinder than real data. The weather correction divides by the same
-      curve that generated the times, so it is exactly right by construction. There is no
-      pacing strategy, no fatigue that depends on where the hills fall, and no difference in
-      who chooses to race where. Real fields have all three.
+      The test is also kinder than race data would be. The weather correction divides by the
+      same curve that generated the times, so it is exactly right by construction, and the
+      simulation leaves out pacing strategy, fatigue that depends on where the hills fall, and
+      differences in who chooses to race where. Actual fields have all three.
     </p>
     <p>
       The course profiles (gain, loss, maximum grade, turn count) are typed into

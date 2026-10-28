@@ -80,10 +80,10 @@
   <header class="bib"><b>Majors course difficulty</b><span>Jeremy Lee &middot; 2026</span></header>
 
   <h1>Same runner, two courses: the paired method finds each course's penalty within 8 seconds</h1>
-  <p class="lede">I built a simulated elite field for the six World Marathon Majors, 2015 to 2024, with a known time
-    penalty planted on each course. Then I asked three ranking methods to find those penalties again.
-    The <strong>within-runner paired comparison</strong> read Boston as 101 seconds slower than Berlin against
-    a planted 105, and missed no course by more than 7.3 seconds.</p>
+  <p class="lede">To test course-ranking methods against an answer I already knew, I built a simulated elite field for
+    the six World Marathon Majors, 2015 to 2024, and planted a time penalty on each course. The
+    <strong>within-runner paired comparison</strong> found them best: it read Boston as 101 seconds slower than Berlin
+    against a planted 105, and missed no course by more than 7.3 seconds.</p>
 
   <section class="board" aria-labelledby="board-title">
     <div class="board-head"><span id="board-title">Seconds slower than Berlin</span><span>bar: paired estimate &middot; tick: planted</span></div>
@@ -125,9 +125,9 @@
     Boston comes out at 1.0092 and New York at 1.0089: the elevation model's negative Boston number pulls the two almost level.</p>
 
   <h2>What this doesn't show</h2>
-  <p class="plain">The race results and athletes are simulated, so none of these numbers is a measurement of the real courses.
-    The test is also easier than real data would be: the weather correction uses the same curve that generated the times.
-    Whether Boston really is 105 s slower than Berlin, or faster as the elevation model says, this data can't tell.</p>
+  <p class="plain">The race results and athletes are simulated, so none of these numbers measures the courses themselves.
+    The test is also easier than race data would be, because the weather correction uses the same curve that generated the times.
+    Whether Boston is 105 s slower than Berlin, or faster as the elevation model says, this data can't tell.</p>
 
   <ul class="links">
     <li><a href="overview/">Write-up</a></li>
