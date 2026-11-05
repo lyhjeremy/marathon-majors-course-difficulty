@@ -1,6 +1,9 @@
 # Marathon Majors course difficulty
 
-How many seconds does Boston cost compared with Berlin? This repo tests three ways of answering that on a simulated elite field, where each course's penalty is set in code and the right answer is known.
+How many seconds does Boston cost compared with Berlin, and which method can tell?
+On a simulated elite field with each course's penalty planted in code, the within-runner paired method recovers every course to within 7.3 seconds (Boston 101.0 s against a planted 105), the weather-normalized top-10 average to within 11.1 s, and a grade-adjusted elevation model puts Boston 89 s faster than Berlin.
+
+This repo tests those three methods on the simulated field, where the right answer is known.
 
 [Live site](https://lyhjeremy.github.io/marathon-majors-course-difficulty/) · [Write-up](https://lyhjeremy.github.io/marathon-majors-course-difficulty/overview/) · [Full report (Markdown)](writeup.md) · [Notebook](notebooks/majors_course_difficulty_analysis.ipynb)
 

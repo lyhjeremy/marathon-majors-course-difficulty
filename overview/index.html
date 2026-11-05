@@ -265,6 +265,16 @@
     .lane > :nth-child(3) { text-align: right; }
     .lane .est { font-size: 13.5px; }
   }
+
+  /* At a glance: a numbered ledger, race-bib numerals down the left. */
+  .ledger { margin-top: 30px; background: var(--card); border: 1px solid var(--rule); border-left: 6px solid var(--ink); padding: 14px 18px 6px; }
+  .ledger h2 { font: 700 22px/1.1 var(--display); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 6px; max-width: none; color: var(--ink); }
+  .ledger ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+  .ledger li { display: grid; grid-template-columns: 2.1em minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--rule); font: 14.5px/1.5 var(--sans); color: var(--ink); margin: 0; }
+  .ledger li::before { content: attr(data-n); font: 700 26px/1 var(--display); color: var(--accent); }
+  .ledger li b { font-weight: 600; }
+  .ledger li em { display: block; font: 600 12px/1.4 var(--mono); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  @media (max-width: 760px) { .ledger ol { grid-template-columns: minmax(0, 1fr); } .ledger { padding: 12px 14px 4px; } }
 </style>
 </head>
 <body>
@@ -340,10 +350,10 @@
       what a slower course costs in seconds. Race results can't settle that, because nobody knows the
       true answer to check a method against. So I simulated a top-100 elite field for the six World
       Marathon Majors over 2015 to 2024, planted a time penalty on each course, and ran three ranking
-      methods to see which one finds the penalties again. The <strong>within-runner paired
-      comparison</strong> put Boston 101.0 seconds behind Berlin against a planted 105. The
-      <strong>weather-normalized top-10 average</strong> came within 11.1 seconds on every course. The
-      <strong>grade-adjusted energy-cost model</strong>, which reads only the course profiles, says
+      methods to see which one finds the penalties again. The within-runner paired
+      comparison put Boston 101.0 seconds behind Berlin against a planted 105. The
+      weather-normalized top-10 average came within 11.1 seconds on every course. The
+      grade-adjusted energy-cost model, which reads only the course profiles, says
       Boston is the fastest of the six.
     </p>
 
@@ -374,6 +384,18 @@
         <p>Same-athlete course pairs inside 18 months, from 438 simulated athletes who ran more than one Major.</p>
       </div>
     </div>
+
+    <section class="ledger" aria-labelledby="glance-h">
+      <h2 id="glance-h">At a glance</h2>
+      <ol>
+        <li data-n="01"><div><em>Question</em>Which of three methods recovers a course's time penalty, in seconds slower than Berlin, when the true value is known?</div></li>
+        <li data-n="02"><div><em>Data</em>Simulated top-100 field, seed 42: <b>10,800 results</b> over 54 editions of the six Majors, 2015 to 2024 without 2020, and 42,567 same-athlete pairs</div></li>
+        <li data-n="03"><div><em>Method</em>Within-runner paired fit (OLS, 2,000-resample bootstrap), weather-normalized top-10 average, Minetti grade-adjusted energy cost</div></li>
+        <li data-n="04"><div><em>Check</em>Every estimate against the penalty planted in <code>src/build_data.py</code>: Berlin 0 up to Boston 105 s</div></li>
+        <li data-n="05"><div><em>Result</em>Paired: within <b>7.3 s</b> on every course (Boston <b>101.0 s</b> against 105). Top-10: within 11.1 s. Grade-adjusted: Boston 89 s <i>faster</i> than Berlin</div></li>
+        <li data-n="06"><div><em>Main limitation</em>No real course is measured. The weather correction divides by the curve that made the times, and the paired fit runs low on all five courses</div></li>
+      </ol>
+    </section>
   </section>
 </div>
 
